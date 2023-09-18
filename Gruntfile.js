@@ -88,6 +88,8 @@ module.exports = function (grunt) {
                     '!Gruntfile.js',
                     '!launch_phpunit.sh',
                     '!Makefile',
+                    '!manifest-chrome.json',
+                    '!manifest-firefox.json',
                     '!package.json',
                     '!package-lock.json',
                     '!phpunit.*',
@@ -98,7 +100,25 @@ module.exports = function (grunt) {
                     '!.tx'
                 ],
                 dest: 'dist/'
-            }
+            },
+            firefox: {
+                files: [{
+                    expand: true,
+                    src: ['manifest-firefox.json'],
+                    rename: function () {
+                        return 'manifest.json';
+                    }
+                }]
+            },
+            chrome: {
+                files: [{
+                    expand: true,
+                    src: ['manifest-chrome.json'],
+                    rename: function () {
+                        return 'manifest.json';
+                    }
+                }]
+            },
         },
         compress: {
             dist: {
@@ -124,7 +144,12 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', ['jshint']);
     grunt.registerTask('test', ['jshint']);
-    grunt.registerTask('build', ['exec', 'sass', 'jshint', 'clean:dist', 'mkdir:dist', 'copy:dist', 'compress:dist']);
+
+    // Currently it's needed to separate the build-processes because firefox and chrome needs different manifest keys which are not compatible with each other.
+    // grunt.registerTask('build', ['exec', 'sass', 'jshint', 'clean:dist', 'mkdir:dist', 'copy:dist', 'compress:dist']);
+    grunt.registerTask('build-ff', ['exec:fixLocale', 'sass', 'jshint', 'clean:dist', 'mkdir:dist', 'copy:firefox', 'copy:dist', 'compress:dist']);
+    grunt.registerTask('build-chrome', ['exec:fixLocale', 'sass', 'jshint', 'clean:dist', 'mkdir:dist', 'copy:chrome', 'copy:dist', 'compress:dist']);
+
     grunt.registerTask('dist', ['']);
 
 };
